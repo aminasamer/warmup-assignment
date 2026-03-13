@@ -133,6 +133,7 @@ function metQuota(date, activeTime) {
     } else {
         requiredSeconds = 8 * 3600 + 24 * 60;
     }
+    return activeSeconds >= requiredSeconds;
 }
 
 // ============================================================
