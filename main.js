@@ -143,6 +143,67 @@ function metQuota(date, activeTime) {
 // ============================================================
 function addShiftRecord(textFile, shiftObj) {
     // TODO: Implement this function
+    let fileContent = fs.readFileSync(textFile, { encoding: "utf8" }).trim();
+    let lines = fileContent === "" ? [] : fileContent.split("\n");
+
+    for (let i = 0; i < lines.length; i++) {
+        let parts = lines[i].split(",");
+        let existingDriverID = parts[0];
+        let existingDate = parts[2];
+
+        if (existingDriverID === shiftObj.driverID && existingDate === shiftObj.date) {
+            return {};
+        }
+    }
+
+    let shiftDuration = getShiftDuration(shiftObj.startTime, shiftObj.endTime);
+    let idleTime = getIdleTime(shiftObj.startTime, shiftObj.endTime);
+    let activeTime = getActiveTime(shiftDuration, idleTime);
+    let quotaMet = metQuota(shiftObj.date, activeTime);
+
+    let newObj = {
+        driverID: shiftObj.driverID,
+        driverName: shiftObj.driverName,
+        date: shiftObj.date,
+        startTime: shiftObj.startTime,
+        endTime: shiftObj.endTime,
+        shiftDuration: shiftDuration,
+        idleTime: idleTime,
+        activeTime: activeTime,
+        metQuota: quotaMet,
+        hasBonus: false
+    };
+
+    let newLine = [
+        newObj.driverID,
+        newObj.driverName,
+        newObj.date,
+        newObj.startTime,
+        newObj.endTime,
+        newObj.shiftDuration,
+        newObj.idleTime,
+        newObj.activeTime,
+        newObj.metQuota,
+        newObj.hasBonus
+    ].join(",");
+
+    let insertIndex = -1;
+    for (let i = 0; i < lines.length; i++) {
+        let parts = lines[i].split(",");
+        if (parts[0] === shiftObj.driverID) {
+            insertIndex = i;
+        }
+    }
+
+    if (insertIndex === -1) {
+        lines.push(newLine);
+    } else {
+        lines.splice(insertIndex + 1, 0, newLine);
+    }
+
+    fs.writeFileSync(textFile, lines.join("\n"), { encoding: "utf8" });
+
+    return newObj;
 }
 
 // ============================================================
@@ -155,6 +216,20 @@ function addShiftRecord(textFile, shiftObj) {
 // ============================================================
 function setBonus(textFile, driverID, date, newValue) {
     // TODO: Implement this function
+    let fileContent = fs.readFileSync(textFile, { encoding: "utf8" }).trim();
+    let lines = fileContent === "" ? [] : fileContent.split("\n");
+
+    for (let i = 0; i < lines.length; i++) {
+        let parts = lines[i].split(",");
+
+        if (parts[0] === driverID && parts[2] === date) {
+            parts[9] = String(newValue);
+            lines[i] = parts.join(",");
+            break;
+        }
+    }
+
+    fs.writeFileSync(textFile, lines.join("\n"), { encoding: "utf8" });
 }
 
 // ============================================================
@@ -166,6 +241,33 @@ function setBonus(textFile, driverID, date, newValue) {
 // ============================================================
 function countBonusPerMonth(textFile, driverID, month) {
     // TODO: Implement this function
+    let fileContent = fs.readFileSync(textFile, { encoding: "utf8" }).trim();
+    let lines = fileContent === "" ? [] : fileContent.split("\n");
+
+    let targetMonth = parseInt(month);
+    let foundDriver = false;
+    let count = 0;
+
+    for (let i = 0; i < lines.length; i++) {
+        let parts = lines[i].split(",");
+        let currentDriverID = parts[0];
+        let currentMonth = parseInt(parts[2].split("-")[1]);
+        let hasBonus = parts[9].trim() === "true";
+
+        if (currentDriverID === driverID) {
+            foundDriver = true;
+
+            if (currentMonth === targetMonth && hasBonus) {
+                count++;
+            }
+        }
+    }
+
+    if (!foundDriver) {
+        return -1;
+    }
+
+    return count;
 }
 
 // ============================================================
