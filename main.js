@@ -1,5 +1,58 @@
 const fs = require("fs");
 
+function convertToSeconds(timeStr) {
+    let time = timeStr.trim().toLowerCase();
+
+    if (time.includes("am") || time.includes("pm")) {
+        let parts = time.split(" ");
+        let clock = parts[0];
+        let period = parts[1];
+
+        let clockParts = clock.split(":");
+        let hours = parseInt(clockParts[0]);
+        let minutes = parseInt(clockParts[1]);
+        let seconds = parseInt(clockParts[2]);
+
+        if (period === "am") {
+            if (hours === 12) hours = 0;
+        } else if (period === "pm") {
+            if (hours !== 12) hours += 12;
+        }
+
+        return hours * 3600 + minutes * 60 + seconds;
+    } else {
+        let parts = time.split(":");
+        let hours = parseInt(parts[0]);
+        let minutes = parseInt(parts[1]);
+        let seconds = parseInt(parts[2]);
+        return hours * 3600 + minutes * 60 + seconds;
+    }
+}
+
+function convertSecondsToTime(totalSeconds) {
+    if (totalSeconds < 0) totalSeconds = 0;
+
+    let hours = Math.floor(totalSeconds / 3600);
+    let remaining = totalSeconds % 3600;
+    let minutes = Math.floor(remaining / 60);
+    let seconds = remaining % 60;
+
+    let mm = String(minutes).padStart(2, "0");
+    let ss = String(seconds).padStart(2, "0");
+
+    return `${hours}:${mm}:${ss}`;
+}
+
+function getMonthNumber(dateStr) {
+    return parseInt(dateStr.split("-")[1]);
+}
+
+function getDayName(dateStr) {
+    let days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    let date = new Date(dateStr);
+    return days[date.getDay()];
+}
+
 // ============================================================
 // Function 1: getShiftDuration(startTime, endTime)
 // startTime: (typeof string) formatted as hh:mm:ss am or hh:mm:ss pm
