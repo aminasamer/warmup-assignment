@@ -61,6 +61,15 @@ function getDayName(dateStr) {
 // ============================================================
 function getShiftDuration(startTime, endTime) {
     // TODO: Implement this function
+    let startSeconds = convertToSeconds(startTime);
+    let endSeconds = convertToSeconds(endTime);
+
+    if (endSeconds < startSeconds) {
+        endSeconds += 24 * 3600;
+    }
+
+    let duration = endSeconds - startSeconds;
+    return convertSecondsToTime(duration);
 }
 
 // ============================================================
@@ -71,6 +80,27 @@ function getShiftDuration(startTime, endTime) {
 // ============================================================
 function getIdleTime(startTime, endTime) {
     // TODO: Implement this function
+    let startSeconds = convertToSeconds(startTime);
+    let endSeconds = convertToSeconds(endTime);
+
+    if (endSeconds < startSeconds) {
+        endSeconds += 24 * 3600;
+    }
+
+    let deliveryStart = 8 * 3600;   // 8:00 AM
+    let deliveryEnd = 22 * 3600;    // 10:00 PM
+
+    let idleSeconds = 0;
+
+    if (startSeconds < deliveryStart) {
+        idleSeconds += deliveryStart - startSeconds;
+    }
+
+    if (endSeconds > deliveryEnd) {
+        idleSeconds += endSeconds - deliveryEnd;
+    }
+
+    return convertSecondsToTime(idleSeconds);
 }
 
 // ============================================================
@@ -81,6 +111,10 @@ function getIdleTime(startTime, endTime) {
 // ============================================================
 function getActiveTime(shiftDuration, idleTime) {
     // TODO: Implement this function
+    let shiftSeconds = convertToSeconds(shiftDuration);
+    let idleSeconds = convertToSeconds(idleTime);
+
+    return convertSecondsToTime(shiftSeconds - idleSeconds);
 }
 
 // ============================================================
