@@ -125,6 +125,14 @@ function getActiveTime(shiftDuration, idleTime) {
 // ============================================================
 function metQuota(date, activeTime) {
     // TODO: Implement this function
+    let activeSeconds = convertToSeconds(activeTime);
+    let requiredSeconds;
+
+    if (date >= "2025-04-10" && date <= "2025-04-30") {
+        requiredSeconds = 6 * 3600;
+    } else {
+        requiredSeconds = 8 * 3600 + 24 * 60;
+    }
 }
 
 // ============================================================
